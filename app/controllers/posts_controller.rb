@@ -3,7 +3,25 @@ class PostsController < ApplicationController
   before_action :set_post, only: %i[show edit update destroy]
 
   def index
-    @posts = Post.order(created_at: :desc).page(params[:page]).per(10)
+    @posts = Post.includes(:user, :tags, comments: :user)
+
+    if params[:post].present?
+      @posts = @posts.where("title ILIKE :q OR body ILIKE :q", q: "%#{params[:post]}%")
+    end
+
+    if params[:comment].present?
+      @posts = @posts.joins(:comments).where("comments.body ILIKE ?", "%#{params[:comment]}%")
+    end
+
+    if params[:user].present?
+      @posts = @posts.joins(user: :profile).where("profiles.name ILIKE ?", "%#{params[:user]}%")
+    end
+
+    if params[:tag].present?
+      @posts = @posts.joins(:tags).where(tags: { name: params[:tag] })
+    end
+
+    @posts = @posts.distinct.order(created_at: :desc).page(params[:page]).per(10)
   end
 
   def new
@@ -38,11 +56,6 @@ class PostsController < ApplicationController
     end
   end
 
-  def destroy
-    @post.destroy!
-    redirect_to posts_path, success: 'ポストを削除しました'
-  end
-
   private
 
   def set_post
@@ -53,10 +66,9 @@ class PostsController < ApplicationController
     params.require(:post).permit(:title, :body)
   end
 
-  # タグ関連の処理
+  # タグを保存する
   def assign_tags(post)
     tag_names = (params[:post][:tag_names] || "").split(",").map(&:strip).uniq
     post.tags = tag_names.reject(&:blank?).map { |name| Tag.find_or_create_by(name: name) }
   end
 end
-
