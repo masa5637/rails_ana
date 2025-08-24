@@ -1,5 +1,6 @@
 class PostsController < ApplicationController
-  before_action :require_login, only: %i[new create]
+  before_action :require_login, only: %i[new create edit update destroy]
+  before_action :set_post, only: %i[show edit update destroy]
 
   def index
     @posts = Post.order(created_at: :desc).page(params[:page]).per(10)
@@ -12,6 +13,7 @@ class PostsController < ApplicationController
   def create
     @post = current_user.posts.new(post_params)
     if @post.save
+      assign_tags(@post)
       redirect_to post_path(@post), success: 'ポストを作成しました'
     else
       flash.now[:danger] = 'ポストを作成できませんでした'
@@ -20,17 +22,15 @@ class PostsController < ApplicationController
   end
 
   def show
-    @post = Post.find(params[:id])
     @comment = Comment.new
   end
 
   def edit
-    @post = current_user.posts.find(params[:id])
   end
 
   def update
-    @post = current_user.posts.find(params[:id])
     if @post.update(post_params)
+      assign_tags(@post)
       redirect_to post_path(@post), success: 'ポストを更新しました'
     else
       flash.now[:danger] = 'ポストを更新できませんでした'
@@ -39,14 +39,24 @@ class PostsController < ApplicationController
   end
 
   def destroy
-    @post = current_user.posts.find(params[:id])
     @post.destroy!
     redirect_to posts_path, success: 'ポストを削除しました'
   end
 
   private
 
+  def set_post
+    @post = current_user.posts.find_by(id: params[:id]) || Post.find(params[:id])
+  end
+
   def post_params
     params.require(:post).permit(:title, :body)
   end
+
+  # タグ関連の処理
+  def assign_tags(post)
+    tag_names = (params[:post][:tag_names] || "").split(",").map(&:strip).uniq
+    post.tags = tag_names.reject(&:blank?).map { |name| Tag.find_or_create_by(name: name) }
+  end
 end
+
