@@ -17,8 +17,8 @@ class PostsController < ApplicationController
       @posts = @posts.joins(user: :profile).where("profiles.name ILIKE ?", "%#{params[:user]}%")
     end
 
-    if params[:tag].present?
-      @posts = @posts.joins(:tags).where(tags: { name: params[:tag] })
+    if params[:tag_id].present?
+      @posts = @posts.joins(:tags).where(tags: { id: params[:tag_id] })
     end
 
     @posts = @posts.distinct.order(created_at: :desc).page(params[:page]).per(10)
@@ -30,6 +30,7 @@ class PostsController < ApplicationController
 
   def create
     @post = current_user.posts.new(post_params)
+    assign_tags(@post)
     if @post.save
       assign_tags(@post)
       redirect_to post_path(@post), success: 'ポストを作成しました'
@@ -63,12 +64,11 @@ class PostsController < ApplicationController
   end
 
   def post_params
-    params.require(:post).permit(:title, :body)
+    params.require(:post).permit(:title, :body, :tags_string)
   end
 
-  # タグを保存する
   def assign_tags(post)
-    tag_names = (params[:post][:tag_names] || "").split(",").map(&:strip).uniq
+    tag_names = (params[:tags_string] || "").split(",").map(&:strip).uniq
     post.tags = tag_names.reject(&:blank?).map { |name| Tag.find_or_create_by(name: name) }
   end
 end

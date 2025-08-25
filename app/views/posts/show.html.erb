@@ -20,10 +20,9 @@
       <div class="tags mb-2">
         <% @post.tags.each do |tag| %>
           <%= link_to tag.name,
-                      posts_path(tag: tag.name),
-                      class: 'badge bg-secondary me-1',
-                      id: "post_#{@post.id}_tag_#{tag.id}",
-                      data: { tag: tag.name } %>
+              posts_path(tag_id: tag.id),
+              class: "badge bg-primary me-1",
+              data: { tag: tag.name } %>
         <% end %>
       </div>
 
