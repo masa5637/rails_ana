@@ -11,7 +11,10 @@
             <% if post.tags.any? %>
               <div class="mt-1">
                 <% post.tags.each do |tag| %>
-                  <%= link_to tag.name, posts_path(tag: tag.name), class: "badge bg-secondary me-1" %>
+                  <%= link_to tag.name,
+                              posts_path(tag_id: tag.id),
+                              class: "badge bg-secondary me-1",
+                              data: { tag: tag.name, post_id: post.id } %>
                 <% end %>
               </div>
             <% end %>
