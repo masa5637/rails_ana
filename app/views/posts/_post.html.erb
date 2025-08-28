@@ -8,16 +8,18 @@
               <div class="fw-bold"><%= link_to post.title, post_path(post) %></div>
               posted by <%= post.user.name %>
             </div>
+
             <% if post.tags.any? %>
               <div class="mt-1">
                 <% post.tags.each do |tag| %>
                   <%= link_to tag.name,
                               posts_path(tag_id: tag.id),
                               class: "badge bg-secondary me-1",
-                              data: { tag: tag.name, post_id: post.id } %>
+                              data: { tag: tag.name, post_id: post.id, id: "tag_#{tag.id}_post_#{post.id}" } %>
                 <% end %>
               </div>
             <% end %>
+
             <div class="d-flex mt-2">
               <div class="ms-auto text-end">
                 <% if current_user&.mine?(post) %>
@@ -39,4 +41,3 @@
     </div>
   </div>
 </div>
-

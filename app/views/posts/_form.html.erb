@@ -14,7 +14,7 @@
   <div class="mb-3">
     <%= label_tag :tags_string, "タグ" %>
     <% preset_tags = params[:tags_string].presence || post.tags.map(&:name).join(",") %>
-    <%= text_field_tag :tags_string, params[:tags_string].presence || post.tags.map(&:name).join(","), class: "form-control", placeholder: "例: rails,ruby,php" %>
+    <%= text_field_tag :tags_string, preset_tags, class: "form-control", placeholder: "例: rails,ruby,php" %>
   </div>
 
   <%= f.submit class: 'btn btn-primary' %>
