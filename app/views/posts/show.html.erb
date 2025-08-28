@@ -1,15 +1,15 @@
 <div class="container">
-  <div class="card mb-3" id="post_<%= @post.id %>">
+  <div class="card mb-3" id="<%= dom_id(@post) %>">
     <div class="card-header d-flex justify-content-between align-items-center">
       ポスト詳細
       <% if current_user&.mine?(@post) %>
         <div class="text-end">
           <%= link_to '編集', edit_post_path(@post), class: 'btn btn-success btn-sm' %>
           <%= link_to '削除',
-                      post_path(@post),
-                      class: 'btn btn-danger btn-sm',
-                      method: :delete,
-                      data: { confirm: '削除します' } %>
+              post_path(@post),
+              class: 'btn btn-danger btn-sm',
+              method: :delete,
+              data: { confirm: '削除します' } %>
         </div>
       <% end %>
     </div>
@@ -17,14 +17,16 @@
     <div class="card-body">
       <h2 class="h2"><%= @post.title %></h2>
 
-      <div class="tags mb-2">
-        <% @post.tags.each do |tag| %>
-          <%= link_to tag.name,
-              posts_path(tag_id: tag.id),
-              class: "badge bg-primary me-1",
-              data: { tag: tag.name } %>
-        <% end %>
-      </div>
+      <% if @post.tags.any? %>
+        <div class="tags mb-2">
+          <% @post.tags.each do |tag| %>
+            <%= link_to tag.name,
+                posts_path(tag_id: tag.id),
+                class: "badge bg-primary me-1",
+                data: { tag: tag.name, post_id: @post.id, id: "tag_#{tag.id}_post_#{@post.id}" } %>
+          <% end %>
+        </div>
+      <% end %>
 
       <%= simple_format(@post.body) %>
     </div>
@@ -52,3 +54,4 @@
     </div>
   </div>
 </div>
+
