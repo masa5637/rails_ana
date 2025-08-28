@@ -1,3 +1,6 @@
+require 'net/http'
+require 'uri'
+
 class SignUpForm
   include ActiveModel::Model
   include ActiveModel::Attributes
@@ -13,6 +16,7 @@ class SignUpForm
   end
 
   validate :email_is_not_taken_by_another
+  validate :github_account_exists # ← 追加
 
   def save
     return false if invalid?
@@ -34,4 +38,18 @@ class SignUpForm
   def email_is_not_taken_by_another
     errors.add(:email, :taken, value: email) if User.exists?(email: email)
   end
+
+  def github_account_exists
+    return if name.blank?
+
+    uri = URI.parse("https://github.com/#{name}")
+    response = Net::HTTP.get_response(uri)
+
+    unless response.is_a?(Net::HTTPSuccess)
+      errors.add(:name, "GitHubに存在するユーザー名しか登録できません")
+    end
+  rescue StandardError
+    errors.add(:base, "GitHubアカウントの確認中にエラーが発生しました")
+  end
 end
+

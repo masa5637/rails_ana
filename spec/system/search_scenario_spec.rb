@@ -101,7 +101,7 @@ RSpec.describe '検索関連の機能', type: :system do
 
     it 'タグで絞り込みができること' do
       visit '/posts'
-      click_link 'tag_a'
+      find("a[data-tag='tag_a']").click
 
       expect(page).to have_content post_a.title
       expect(page).not_to have_content post_b.title

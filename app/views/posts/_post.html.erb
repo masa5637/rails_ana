@@ -1,22 +1,33 @@
 <li id="<%= dom_id(post) %>">
-  <div>
-    <div><%= link_to post.title, post_path(post) %></div>
+  <div class="mb-2">
+    <div class="fw-bold"><%= link_to post.title, post_path(post) %></div>
     posted by <%= post.user.name %>
   </div>
-  <div class="d-flex">
-    <div class="ms-auto">
-      <% if current_user&.mine?(post) %>
-        <div class="text-end">
-          <%= link_to '編集', edit_post_path(post), class: 'btn btn-success btn-sm' %>
-          <%= link_to '削除',
-                      post_path(post),
-                      class: 'btn btn-danger btn-sm',
-                      method: :delete,
-                      data: { confirm: '削除します' } %>
-        </div>
+
+  <% if post.tags.any? %>
+    <div class="mt-1">
+      <% post.tags.each do |tag| %>
+        <%= link_to tag.name,
+            posts_path(tag_id: tag.id),
+            class: "badge bg-secondary me-1",
+            data: { tag: tag.name, post_id: post.id, id: "tag_#{tag.id}_post_#{post.id}" } %>
       <% end %>
-      <%= l post.created_at, format: :long %>
+    </div>
+  <% end %>
+
+  <div class="d-flex mt-2">
+    <div class="ms-auto text-end">
+      <% if current_user&.mine?(post) %>
+        <%= link_to '編集', edit_post_path(post), class: 'btn btn-success btn-sm me-1' %>
+        <%= link_to '削除',
+            post_path(post),
+            class: 'btn btn-danger btn-sm',
+            method: :delete,
+            data: { confirm: '削除します' } %>
+      <% end %>
+      <div class="text-muted mt-1"><%= l post.created_at, format: :long %></div>
     </div>
   </div>
   <hr>
 </li>
+
